@@ -11,36 +11,44 @@ public class Client {
     private Session session;
     private ChannelSftp sftpChannel;
 
+    public Session getSession() {
+        return this.session;
+    }
+
+    public ChannelSftp getSftpChannel() {
+        return this.sftpChannel;
+    }
+
     public void connect(String address, int port, String login, String password) throws JSchException {
         JSch jSch = new JSch();
-        session = jSch.getSession(login, address, port);
-        session.setPassword(password);
-        session.setConfig("StrictHostKeyChecking", "no");
-        session.connect();
+        this.session = jSch.getSession(login, address, port);
+        this.session.setPassword(password);
+        this.session.setConfig("StrictHostKeyChecking", "no");
+        this.session.connect();
 
-        if (!session.isConnected()) {
+        if (!this.session.isConnected()) {
             throw new JSchException("Не удалось подключиться к серверу.");
         }
-        sftpChannel = (ChannelSftp) session.openChannel("sftp");
-        sftpChannel.connect();
+        this.sftpChannel = (ChannelSftp) this.session.openChannel("sftp");
+        this.sftpChannel.connect();
 
-        if (!sftpChannel.isConnected()) {
+        if (!this.sftpChannel.isConnected()) {
             throw new JSchException("Не удалось открыть SFTP канал.");
         }
     }
 
     public void disconnect() {
-        if (sftpChannel != null && sftpChannel.isConnected()) {
-            sftpChannel.disconnect();
+        if (this.sftpChannel != null && this.sftpChannel.isConnected()) {
+            this.sftpChannel.disconnect();
         }
-        if (session != null && session.isConnected()) {
-            session.disconnect();
+        if (this.session != null && this.session.isConnected()) {
+            this.session.disconnect();
         }
     }
 
     public String readFile(String remoteFilePath) throws SftpException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            sftpChannel.get(remoteFilePath, outputStream);
+            this.sftpChannel.get(remoteFilePath, outputStream);
             return outputStream.toString();
         } catch (IOException e) {
             throw new SftpException(1, "Произошла ошибка при чтении файла: " + e.getMessage());
@@ -49,7 +57,7 @@ public class Client {
 
     public void writeFile(String remoteFilePath, String content) throws SftpException {
         try (InputStream inputStream = new ByteArrayInputStream(content.getBytes())) {
-            sftpChannel.put(inputStream, remoteFilePath);
+            this.sftpChannel.put(inputStream, remoteFilePath);
         } catch (IOException e) {
             throw new SftpException(1, "Произошла ошибка при чтении файла: " + e.getMessage());
         }
