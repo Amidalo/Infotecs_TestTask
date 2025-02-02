@@ -20,68 +20,84 @@ public class Main {
             client.connect(inputAddress, inputPort, inputLogin, inputPassword);
             JSONProcessing jsonProcessing = new JSONProcessing(client, remoteFilePath);
 
-            boolean exit = false;
-            do {
-                printMenu();
+            processUserInput(sc, jsonProcessing, client);
 
-                System.out.print("Ваш выбор: ");
-                int userInput = sc.nextInt();
-                sc.nextLine();
-
-                String ip;
-                String domain;
-
-                switch (userInput) {
-                    case 1:
-                        jsonProcessing.getAddressesList();
-                        break;
-                    case 2:
-                        System.out.print("Введите доменное имя: ");
-                        domain = sc.nextLine();
-                        ip = jsonProcessing.getIPByDomain(domain);
-                        System.out.println("IP-адрес для домена " + domain + ": " + ip);
-                        break;
-                    case 3:
-                        System.out.print("Введите IP-адрес: ");
-                        ip = sc.nextLine();
-                        domain = jsonProcessing.getDomainByIP(ip);
-                        System.out.println("Доменное имя для IP-адреса " + ip + ": " + domain);
-                        break;
-                    case 4:
-                        System.out.print("Введите доменное имя: ");
-                        domain = sc.nextLine();
-                        System.out.print("Введите IP-адрес: ");
-                        ip = sc.nextLine();
-                        jsonProcessing.addNewPairOfDomainAddress(domain, ip);
-                        break;
-                    case 5:
-                        System.out.print("Введите доменное имя для удаления: ");
-                        domain = sc.nextLine();
-                        jsonProcessing.removePairOfDomainAddressByDomain(domain);
-                        break;
-                    case 6:
-                        System.out.print("Введите IP-адрес для удаления: ");
-                        ip = sc.nextLine();
-                        jsonProcessing.removePairOfDomainAddressByIP(ip);
-                        break;
-                    case 7:
-                        System.out.println("Вы решили завершить работу.");
-                        client.disconnect();
-                        exit = true;
-                        break;
-                    default:
-                        System.out.println("Такого варианта нет.");
-                        break;
-                }
-            } while (!exit);
         } catch (JSchException | IOException | SftpException e) {
             System.err.println("Ошибка: " + e.getMessage());
             System.exit(2);
         }
     }
 
+    private static void processUserInput(Scanner sc, JSONProcessing jsonProcessing, Client client) throws IOException,
+            SftpException {
+        boolean exit = false;
+        while (!exit) {
+            printMenu();
+            int userInput = doChoice(sc);
+
+            String ip;
+            String domain;
+
+            switch (userInput) {
+                case 1:
+                    jsonProcessing.getAddressesList();
+                    break;
+                case 2:
+                    System.out.print("Введите доменное имя: ");
+                    domain = sc.nextLine();
+                    ip = jsonProcessing.getIPByDomain(domain);
+                    System.out.println("IP-адрес для домена " + domain + ": " + ip);
+                    break;
+                case 3:
+                    System.out.print("Введите IP-адрес: ");
+                    ip = sc.nextLine();
+                    domain = jsonProcessing.getDomainByIP(ip);
+                    System.out.println("Доменное имя для IP-адреса " + ip + ": " + domain);
+                    break;
+                case 4:
+                    System.out.print("Введите доменное имя: ");
+                    domain = sc.nextLine();
+                    System.out.print("Введите IP-адрес: ");
+                    ip = sc.nextLine();
+                    jsonProcessing.addNewPairOfDomainAddress(domain, ip);
+                    break;
+                case 5:
+                    System.out.print("Введите доменное имя для удаления: ");
+                    domain = sc.nextLine();
+                    jsonProcessing.removePairOfDomainAddressByDomain(domain);
+                    break;
+                case 6:
+                    System.out.print("Введите IP-адрес для удаления: ");
+                    ip = sc.nextLine();
+                    jsonProcessing.removePairOfDomainAddressByIP(ip);
+                    break;
+                case 7:
+                    exit = true;
+                    System.out.println("Вы решили завершить работу.");
+                    client.disconnect();
+                    break;
+            }
+        }
+    }
+
+    private static int doChoice(Scanner sc) {
+        while (true) {
+            try {
+                System.out.print("Ваш выбор: ");
+                int choice = Integer.parseInt(sc.nextLine());
+                if (choice >= 1 && choice <= 7) {
+                    return choice;
+                } else {
+                    System.out.println("Некорректный выбор. Пожалуйста, введите число от 1 до 7.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Некорректный ввод. Пожалуйста, введите число.");
+            }
+        }
+    }
+
     private static String enterRemoteFilePath(Scanner sc) {
-        System.out.print("Введите путь к файлу (например, /home/user_name/myaddresses.txt): ");
+        System.out.print("Введите путь к файлу (например, /home/vboxuser/myaddresses.txt): ");
         return sc.nextLine();
     }
 

@@ -78,10 +78,7 @@ public class JSONProcessing {
     }
 
     public String getIPByDomain(String domain) {
-        if (!addresses.containsKey(domain)) {
-            throw new IllegalArgumentException("Такого домена в файле нет.");
-        }
-        return addresses.get(domain);
+        return addresses.getOrDefault(domain, "Такого домена в файле нет.");
     }
 
     public String getDomainByIP(String ip) {
