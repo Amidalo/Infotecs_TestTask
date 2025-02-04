@@ -21,10 +21,14 @@ public class Main {
             JSONProcessing jsonProcessing = new JSONProcessing(client, remoteFilePath);
 
             processUserInput(sc, jsonProcessing, client);
-
-        } catch (JSchException | IOException | SftpException e) {
-            System.err.println("Ошибка: " + e.getMessage());
-            System.exit(2);
+        } catch (JSchException e) {
+            throw new RuntimeException("Ошибка при подключении: " + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new RuntimeException("Ошибка ввода-вывода: " + e.getMessage(), e);
+        } catch (SftpException e) {
+            throw new RuntimeException("Ошибка SFTP: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Произошла непредвиденная ошибка: " + e.getMessage(), e);
         }
     }
 
